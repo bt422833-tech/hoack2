@@ -1,0 +1,808 @@
+<!DOCTYPE html>  <html lang="vi">    <head>    
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<meta charset="UTF-8">    
+<title>Trắc nghiệm Hoá học + Đúng Sai( vanduca9 )</title>    
+<style>  
+.flex-row{
+display:grid;
+grid-template-columns: 1fr auto;
+gap:14px;
+align-items:center;
+}
+
+.flex-row img{
+width:180px;
+max-width:40vw;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.15);
+background:white;
+padding:4px;
+}
+#scorePopup{  
+position:fixed;  
+top:0;  
+left:0;  
+width:100%;  
+height:100%;  
+background:rgba(0,0,0,0.6);  
+display:none;  
+align-items:center;  
+justify-content:center;  
+z-index:999;  
+}  .popupBox{
+background:white;
+padding:30px;
+border-radius:14px;
+text-align:center;
+width:80%;
+max-width:320px;
+animation:pop 0.4s ease;
+}
+
+.popupBox h1{
+font-size:36px;
+color:#2e7d32;
+margin-bottom:10px;
+}
+
+.popupBox p{
+font-size:22px;
+margin-bottom:15px;
+}
+
+.popupBox button{
+padding:12px 20px;
+font-size:18px;
+background:#1e88e5;
+color:white;
+border:none;
+border-radius:8px;
+}
+
+@keyframes pop{
+0%{transform:scale(0.5);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
+#result{
+animation:pop 0.5s ease;
+}
+
+@keyframes pop{
+0%{transform:scale(0.6);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
+#result{
+margin-top:20px;
+padding:18px;
+font-size:28px;
+font-weight:bold;
+text-align:center;
+background:linear-gradient(135deg,#4caf50,#2e7d32);
+color:white;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+table{
+margin:6px auto;
+font-size:12px;
+background:white;
+border-collapse:collapse;
+max-width:100%;
+}
+
+table th, table td{
+border:1px solid #666;
+padding:3px 5px;
+text-align:center;
+}
+
+table th{
+background:#a2f2f2;
+font-weight:bold;
+}
+white-space:nowrap;
+}
+
+/* toàn trang */
+body{
+font-family:Arial;
+padding:16px;
+line-height:1.6;
+background:#f3f3f3;
+}
+
+.group-grid{
+display:grid;
+grid-template-columns:1fr;
+gap:16px;
+margin-bottom:24px;
+}
+
+.passage{
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.question-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+}
+
+.question{
+background:white;
+padding:8px 10px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+.question b{
+display:block;
+white-space:pre-line;
+margin-bottom:3px;
+}
+
+.question label{
+display:block;
+margin:4px 0;
+padding:3px 4px;
+border-radius:6px;
+}
+button{
+width:100%;
+padding:14px;
+font-size:18px;
+margin-top:14px;
+border:none;
+border-radius:10px;
+background:#1e88e5;
+color:white;
+font-weight:bold;
+}
+button:empty{
+display:none;
+}
+
+#redoBtn{
+background:#43a047;
+}
+.correct{
+background:#d4edda;
+color:#155724;
+font-weight:bold;
+}
+
+.wrong{
+background:#f8d7da;
+color:#721c24;
+font-weight:bold;
+}
+#topBtn{
+position:fixed;
+bottom:25px;
+right:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:#ff9800;
+color:white;
+font-size:26px;
+border:none;
+display:none;
+cursor:pointer;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+#topBtn:hover{
+transform:scale(1.1);
+background:#fb8c00;
+}
+#popupDetail{
+font-size:18px;
+margin-bottom:10px;
+}
+
+#popupBar{
+width:100%;
+height:10px;
+background:#ddd;
+border-radius:6px;
+margin-top:8px;
+}
+
+#popupBarFill{
+height:10px;
+width:0%;
+background:#4caf50;
+border-radius:6px;
+transition:0.3s;
+}
+</style>
+
+</head>    
+<body>  <h2>TRẮC NGHIỆM HOÁ HỌC (30câu)</h2>    
+<form id="quiz"></form>  <h2>PHẦN ĐÚNG / SAI</h2>  
+<div id="dsquiz"></div>  <h3 id="result" style="display:none"></h3>  
+<button id="checkBtn" type="button" onclick="submitAll()">  
+CHECK ĐÁP ÁN THÔI!!!  
+</button>  <button id="redoBtn" type="button" onclick="redoQuiz()" style="display:none">  
+LÀM LẠI  
+</button>  <div id="scorePopup">  
+<div class="popupBox">  <h1>🏆 <span id="popupScore">0 / 62</span></h1>  <p id="popupPercent">0% chính xác</p>  <p id="popupDetail"></p>  <div id="popupBar">  
+<div id="popupBarFill"></div>  
+</div>  <button onclick="redoQuiz()">LÀM LẠI</button>
+<button onclick="closePopup()">ĐÓNG</button>
+
+</div>  
+</div>  
+<button id="topBtn" onclick="goTop()">↑</button>  <script>  
+function closePopup(){  
+document.getElementById("scorePopup").style.display="none";  
+}  
+function goTop(){  
+window.scrollTo({  
+top:0,  
+behavior:"smooth"  
+});  
+}  
+  
+// hiện nút khi cuộn xuống  
+window.onscroll=function(){  
+  
+let btn=document.getElementById("topBtn");  
+  
+if(document.documentElement.scrollTop>200){  
+btn.style.display="block";  
+}else{  
+btn.style.display="none";  
+}  
+  
+}  
+let submitted=false;  
+  
+function shuffle(arr){  
+for(let i=arr.length-1;i>0;i--){  
+let j=Math.floor(Math.random()*(i+1));  
+[arr[i],arr[j]]=[arr[j],arr[i]];  
+}  
+}  
+let bang = `
+<div style="overflow-x:auto">
+<table>
+<tr>
+<th>Cặp oxi hóa – khử</th>
+<th>Li⁺/Li</th>
+<th>Mg²⁺/Mg</th>
+<th>Zn²/Zn</th>
+<th>Ag+/Ag</th>
+</tr>
+
+<tr>
+<th>E° (V)</th>
+<td>-3.040</td>
+<td>-2.356</td>
+<td>-0.762</td>
+<td>+0.799</td>
+</tr>
+</table>
+</div>
+`;
+let bang2 = `
+<div style="overflow-x:auto">
+<table>
+<tr>
+<th>Cặp oxi hóa – khử</th>
+<th>Cu²⁺/Cu</th>
+<th>Ag⁺/Ag</th>
+<th>Fe²⁺/Fe</th>
+<th>Ni²⁺/Ni</th>
+</tr>
+
+<tr>
+<th>E° (V)</th>
+<td>+0.340</td>
+<td>+0.799</td>
+<td>-0.440</td>
+<td>-0.257</td>
+</tr>
+</table>
+</div>
+`;
+let bang3 =`
+<div style="overflow-x:auto">
+<table>
+<tr>
+<th>Chất</th>
+<th>Li</th>
+<th>Na</th>
+<th>K</th>
+<th>Ca</th>
+<th>Dầu Hỏa</th>
+</tr>
+
+<tr>
+<th>Khối Lượng Riêng</th>
+<td>0.53</td>
+<td>0.97</td>
+<td>0.86</td>
+<td>1.64</td>
+<td>0.80</td>
+</tr>
+</table>
+</div>
+`;
+  
+let mcq = [
+
+{q:"Câu 1. Kí hiệu nào sau đây biểu diễn đúng với cặp oxi hoá – khử?",a:[
+"Cu/Cu2+",
+"2I-/I2",
+"Na+/Na",
+"Fe3O4/FeO"
+],c:2},
+
+{q:"Câu 2. Ở điều kiện chuẩn, thiết lập được điện cực Cu bằng cách nhúng thanh Cu vào dung dịch",a:[
+"NaNO3 1M",
+"AgNO3 0,1M",
+"Cu(NO3)2 1M",
+"HNO3 1M"
+],c:2},
+
+{q:`Câu 3. Trong các kim loại trên, kim loại có tính khử mạnh nhất là
+${bang}
+`,
+a:[
+"Mg",
+"Zn",
+"Ag",
+"Li"
+],c:3},
+
+{q:`Câu 4. Trong các ion kim loại trên, ion có tính oxi hoá mạnh nhất là
+${bang2}
+`,a:[
+"Cu2+",
+"Ag+",
+"Ni2+",
+"Fe2+"
+],c:1},
+
+{
+q:"Câu 5. Bán phản ứng xảy ra ở anode là",
+a:[
+"Cu2+ + 2e → Cu",
+"Zn → Zn2+ + 2e",
+"Zn2+ + 2e → Zn",
+"Cu → Cu2+ + 2e"
+],
+c:1,
+image:"Screenshot_2026-04-28-18-59-58-92.jpg"
+},
+
+{q:"Câu 6. Khi pin Galvani Zn-Cu hoạt động thì nồng độ",a:[
+"Cu2+ giảm, Zn2+ tăng",
+"Cu2+ giảm, Zn2+ giảm",
+"Cu2+ tăng, Zn2+ tăng",
+"Cu2+ tăng, Zn2+ giảm"
+],c:0},
+
+{q:"Câu 7. Phát biểu nào sau đây không phải là lợi ích của pin mặt trời?",a:[
+"Tạo ra được nguồn năng lượng xanh",
+"Thân thiện với môi trường",
+"Giá thành sản xuất rẻ",
+"Không phát thải các chất gây ô nhiễm"
+],c:2},
+
+{q:"Câu 8. Số phát biểu đúng về pin mặt trời là",a:[
+"2",
+"3",
+"4",
+"1"
+],c:1},
+
+{q:"Câu 9. Kim loại X là kim loại cứng nhất dùng để mạ dụng cụ kim loại. Kim loại X là",a:[
+"Fe",
+"Ag",
+"Cr",
+"W"
+],c:2},
+
+{q:"Câu 10. Các dụng cụ nấu bếp thường được chế tạo từ kim loại có tính chất",a:[
+"Tính dẫn điện",
+"Tính dẻo",
+"Tính dẫn nhiệt",
+"Ánh kim"
+],c:2},
+
+{q:"Câu 11.cho các phát biểu sau <br> (a) Sau khi tái chế, nhôm mất đi một phần nào đó tính chất của nó<br>(b) Nhôm, sắt, bạc là những kim loại được tái chế nhiều nhất ở Việt Nam <br>(c) Phần lớn sắt được tái chế được sử dụng để sản xuất thép <br>(d) Tái chế kim loại góp phần làm giảm thiểu nguy cơ ô nhiễm môi trường <br> Số phát biểu đúng là",a:[
+"2",
+"3",
+"4",
+"1"
+],c:0},
+
+{q:"Câu 12. Trường hợp nào sử dụng phương pháp điện hoá chống ăn mòn?",a:[
+"Mạ vàng lên quai đồng hồ",
+"Bôi dầu mỡ lên xích xe đạp",
+"Gắn tấm kẽm lên thân tàu biển",
+"Sơn kín khung cửa thép"
+],c:2},
+
+{q:"Câu 13. Kim loại bị phá huỷ chủ yếu do ăn mòn hoá học?",a:[
+"Thiết bị thép trong lò đốt",
+"Thép để lâu trong không khí ẩm",
+"Ống gang chôn dưới đất",
+"Vỏ tàu biển"
+],c:0},
+
+{q:"Câu 14. Loại thép dùng làm dụng cụ y tế là",a:[
+"Thép hàm lượng C cao",
+"Thép hàm lượng C thấp",
+"Thép không gỉ",
+"Thép silicon"
+],c:2},
+
+{q:"Câu 15. Nguyên tắc tách kim loại là",a:[
+"Khử ion kim loại thành nguyên tử",
+"Oxi hoá ion kim loại",
+"Khử nguyên tử kim loại",
+"Oxi hoá nguyên tử kim loại"
+],c:0},
+
+{q:`Câu 16. Có bao nhiêu kim loại bảo quản trong dầu hoả"
+${bang3}`
+,a:[
+"2",
+"3",
+"4",
+"1"
+],c:1},
+
+{q:"Câu 17. Baking soda có công thức",a:[
+"NaHCO3",
+"Na2CO3",
+"Na2SO3",
+"NaHSO4"
+],c:0},
+
+{q:"Câu 18. Số kim loại phản ứng với nước ở nhiệt độ thường",a:[
+"1",
+"2",
+"3",
+"4"
+],c:2},
+
+{q:"Câu 19. Nguyên tố phổ biến nhóm IIA là",a:[
+"Rb và Sr",
+"Mg và Ba",
+"Mg và Ca",
+"Be và Ca"
+],c:2},
+
+{q:"Câu 20. Kim loại nhóm IA có xu hướng",a:[
+"Nhường 2e",
+"Nhận 2e",
+"Nhận 1e",
+"Nhường 1e"
+],c:3},
+
+{q:"Câu 21. Dùng dung dịch nào tẩy lớp cặn ấm đun nước",a:[
+"Ethanol",
+"Muối ăn",
+"Giấm ăn",
+"Đường"
+],c:2},
+
+{q:"Câu 22. Chất X là",a:[
+"NaOH",
+"CaCO3",
+"Ca(OH)2",
+"KOH"
+],c:2},
+
+{q:"Câu 23. Nước cứng chứa nhiều ion",a:[
+"Mg2+ và Ca2+",
+"Na+ và K+",
+"F- và Cl-",
+"SO42- và CO32-"
+],c:0},
+
+{q:"Câu 24. Chất làm mềm nước",a:[
+"Na2CO3",
+"Ca(OH)2",
+"NaOH",
+"HCl"
+],c:0},
+
+{q:"Câu 25. Tính khử kim loại IA từ Li → Cs",a:[
+"Tăng dần",
+"Không đổi",
+"Không quy luật",
+"Giảm dần"
+],c:0},
+
+{q:"Câu 26. Dãy tăng dần phản ứng với nước",a:[
+"K, Na, Li",
+"Na, K, Li",
+"Li, Na, K",
+"K, Li, Na"
+],c:2},
+
+{q:"Câu 27. Bảo quản kim loại kiềm",a:[
+"Dầu hoả",
+"Nước máy",
+"Ethanol",
+"Giấm"
+],c:0},
+
+{q:"Câu 28. Điện phân dung dịch NaCl thu được",a:[
+"Na và Cl2",
+"Na, H2 và Cl2",
+"NaOH, H2 và Cl2",
+"NaOH, O2 và Cl2"
+],c:2},
+
+{q:"Câu 29. Liên kết kim loại là lực hút giữa electron ... với ion ...",a:[
+"ngoài cùng, dương",
+"tự do, dương",
+"hóa trị, âm",
+"hóa trị, lưỡng cực"
+],c:1},
+
+{q:"Câu 30. Cấu hình electron Mg",a:[
+"1s² 2s² 2p⁶ 3s¹",
+"1s² 2s² 2p⁶ 3s²",
+"1s² 2s² 2p⁶ 3s² 3p¹",
+"1s2 2s2 2p6 3p2"
+],c:1}
+
+];
+  
+let quiz = document.getElementById("quiz");  
+let qIndex = mcq.length;  
+shuffle ( mcq);  
+mcq.forEach((x,i)=>{  
+  
+let answers = x.a.map((text,index)=>({text,index}));  
+  
+shuffle(answers);  
+  
+x.shuffledAnswers = answers;  
+  
+quiz.innerHTML += `  
+<div class="question" id="q${i}" data-correct="${answers.findIndex(a=>a.index===x.c)}">  
+<div class="flex-row">  
+  
+<div>  
+<b>${x.q}</b>  
+  
+<div class="result"></div>  
+  
+${answers.map((o,idx)=>`  
+<label>  
+<input type="radio" name="q${i}" value="${idx}">  
+${o.text}  
+</label>  
+`).join("")}  
+  
+</div>  
+  
+${x.image ? `<img src="${x.image}" style="max-width:260px">` : ""}  
+  
+</div>  
+  
+</div>  
+`;  
+});  
+    
+// ---------------- 6 câu đúng sai ----------------    
+let dsq=[
+
+{
+q:"Câu 1. Xét quá trình hoạt động của một pin điện hoá Cu – Ag. Cho thế điện cực chuẩn Cu2+/Cu = +0,340 V; Ag+/Ag = +0,799 V.",
+a:[
+"Ở anode xảy ra quá trình oxi hoá Cu, ở cathode xảy ra quá trình khử Ag+.",
+"Phản ứng hoá học xảy ra trong pin: Cu + 2Ag+ → Cu2+ + 2Ag.",
+"Khi pin Galvani Cu-Ag hoạt động thì nồng độ Cu2+ giảm, Ag+ tăng.",
+"Giá trị sức điện động chuẩn của pin điện hoá trên là 0,459 V."
+],
+c:[1,1,0,1]
+},
+
+{
+q:"Câu 2. Xét quá trình hoạt động của một pin điện hoá Cu – Ag. Cho thế điện cực chuẩn Cu2+/Cu = +0,340 V; Ag+/Ag = +0,799 V.",
+a:[
+"Phản ứng hoá học xảy ra trong pin: Cu + 2Ag+ → Cu2+ + 2Ag.",
+"Giá trị sức điện động chuẩn của pin điện hoá trên là 0,549 V.",
+"Ở anode xảy ra quá trình oxi hoá Cu, ở cathode xảy ra quá trình khử Ag+.",
+"Khi pin Galvani Cu-Ag hoạt động thì nồng độ Cu2+ giảm, Ag+ tăng."
+],
+c:[1,0,1,0]
+},
+
+{
+q:"Câu 3. Thí nghiệm với đinh sắt trong dung dịch H2SO4 và H2SO4 + CuSO4.",
+a:[
+"Ở bước 2, ống (1) xảy ra ăn mòn hoá học, ống (2) xảy ra ăn mòn điện hoá.",
+"Ở bước 2, trong ống (2) có chất rắn màu đỏ cam bám lên bề mặt đinh sắt.",
+"Nếu thay dung dịch CuSO4 bằng MgSO4 thì khí thoát ra ở ống (2) sẽ nhanh hơn ống (1).",
+"Ở bước 2, tốc độ thoát khí ở ống (1) nhỏ hơn ống (2)."
+],
+c:[1,1,0,1]
+},
+
+{
+q:"Câu 4. Thả một đinh sắt vào dung dịch CuSO4, sau một thời gian lấy ra cân lại.",
+a:[
+"Màu xanh của dung dịch copper(II) sulfate nhạt dần.",
+"Phản ứng diễn ra: Fe + Cu2+ → Fe......",
+"Nếu thay đinh sắt bằng thanh kẽm thì màu xanh dung dịch nhạt dần.",
+"So sánh khối lượng thu được: m1 < m2."
+],
+c:[1,0,1,0]
+},
+
+{
+q:"Câu 5. Nhiệt phân muối carbonate nhóm IIA: MCO3 → MO + CO2.",
+a:[
+"Các phản ứng nhiệt phân ở trên đều là phản ứng toả nhiệt.",
+"Ở nhiệt độ 1360°C, phản ứng nhiệt phân SrCO3 bắt đầu xảy ra.",
+"Trong phản ứng nhiệt phân CaCO3 thì khối lượng chất rắn giảm 44% (hiệu suất 100%).",
+"Ở nhiệt độ 1155°C, phản ứng nhiệt phân CaCO3 bắt đầu xảy ra."
+],
+c:[0,0,1,0]
+},
+
+{
+q:"Câu 6. Nhiệt phân muối carbonate nhóm IIA: MCO3 → MO + CO2.",
+a:[
+"Độ bền nhiệt của các muối tăng dần từ MgCO3 đến BaCO3.",
+"Các phản ứng nhiệt phân ở trên đều là phản ứng toả nhiệt.",
+"Trong phản ứng nhiệt phân CaCO3 thì khối lượng chất rắn giảm 44% (hiệu suất 100%).",
+"Ở nhiệt độ 1155°C, phản ứng nhiệt phân CaCO3 bắt đầu xảy ra."
+],
+c:[1,0,1,0]
+}
+
+];
+  
+let dsquiz = document.getElementById("dsquiz");  
+  
+dsq.forEach((block,gi)=>{  
+  
+dsquiz.innerHTML += `<div class="question"><b>${block.q}</b>`;  
+  
+block.a.forEach((text,i)=>{  
+  
+let id = qIndex;  
+let name = "q"+id;  
+let correct = block.c[i];  
+  
+dsquiz.innerHTML += `  
+<div id="q${id}" data-correct="${correct}"   
+style="margin:10px 0;padding:8px;background:#f7f7f7;border-radius:6px">  
+  
+<label style="margin-right:10px">  
+<input type="radio" name="${name}" value="1"> Đúng  
+</label>  
+  
+<label style="margin-right:10px">  
+<input type="radio" name="${name}" value="0"> Sai  
+</label>  
+  
+<span>${text}</span>  
+<div class="result"></div>  
+</div>  
+`;  
+  
+qIndex++;  
+  
+});  
+  
+dsquiz.innerHTML += `</div>`;  
+  
+});  
+  
+function submitAll(){  
+  
+let correct=0;  
+let wrong=0;  
+let blank=0;  
+let total=qIndex;  
+  
+let resultBoxes=document.querySelectorAll(".result");  
+  
+for(let i=0;i<qIndex;i++){
+
+let radios=document.getElementsByName("q"+i);
+let chosen=null;
+
+let box=document.getElementById("q"+i);
+let correctValue=box.dataset.correct;
+
+let correctText="";
+let chosenText="";
+
+for(let j=0;j<radios.length;j++){
+
+let r=radios[j];
+let label=r.parentElement;
+
+if(r.value==correctValue){
+correctText=label.innerText;
+label.classList.add("correct");
+}
+
+if(r.checked){
+chosen=r;
+chosenText=label.innerText;
+}
+
+}
+
+if(!chosen){
+
+blank++;
+
+resultBoxes[i].innerHTML=
+"Bạn chọn: <span style='color:red;font-weight:bold'>Chưa chọn ❌</span> - Đáp án: <span style='color:green;font-weight:bold'>"+correctText+"</span>";
+
+}
+
+else if(chosen.value==correctValue){
+
+correct++;
+
+resultBoxes[i].innerHTML=
+"Bạn chọn: <span style='color:green;font-weight:bold'>"+chosenText+" ✔</span>";
+
+}
+
+else{
+
+wrong++;
+
+chosen.parentElement.classList.add("wrong");
+
+resultBoxes[i].innerHTML=
+"Bạn chọn: <span style='color:red;font-weight:bold'>"+chosenText+" ❌</span> - Đáp án: <span style='color:green;font-weight:bold'>"+correctText+"</span>";
+
+}
+
+}
+  
+let percent=Math.round((correct/total)*100);  
+  
+document.getElementById("popupScore").innerHTML =  
+correct+" / "+total;  
+  
+document.getElementById("popupDetail").innerHTML =  
+"✅ Đúng: "+correct+  
+" | ❌ Sai: "+wrong+  
+" | ⚪ Chưa làm: "+blank;  
+  
+document.getElementById("popupPercent").innerHTML =  
+percent+"% chính xác";  
+  
+document.getElementById("scorePopup").style.display="flex";  
+  
+document.getElementById("result").innerHTML =  
+"🏆 Điểm: "+correct+" / "+total;  
+  
+document.getElementById("result").style.display="block";  
+  
+document.getElementById("redoBtn").style.display="block";  
+document.getElementById("checkBtn").style.display="none";  
+  
+document.getElementById("popupBarFill").style.width =  
+percent+"%";  
+  
+}  
+  
+  
+function redoQuiz(){  
+location.reload();  
+}  
+</script>    </body>    
+</html>   
